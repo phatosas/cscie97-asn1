@@ -25,16 +25,44 @@ public class Triple {
     private Node subject;
 
     /**
+     * Retrieves the Subject Node
+     *
+     * @return  the main Node subject of the Triple
+     */
+    public Node getSubject() {
+        return subject;
+    }
+
+
+    /**
      * Private non mutable association to the associated Predicate instance.
      */
     private Predicate predicate;
+
+
+    /**
+     * Retrieves the Predicate of the Triple
+     *
+     * @return  the main Predicate of the Triple
+     */
+    public Predicate getPredicate() {
+        return predicate;
+    }
+
 
     /**
      * Private non mutable association to the associated Object instance.
      */
     private Node object;
 
-
+    /**
+     * Retrieve the object Node (e.g., "object")
+     *
+     * @return  the object Node of the Triple
+     */
+    public Node getObject() {
+        return object;
+    }
 
 
 
@@ -59,6 +87,8 @@ public class Triple {
         this.subject = subject;
         this.predicate = predicate;
         this.object = object;
+        //this.identifier = subject.getIdentifier().toLowerCase() + " " + predicate.getIdentifier().toLowerCase() + " " + object.getIdentifier().toLowerCase() + "";
+        this.identifier = subject.getIdentifier() + " " + predicate.getIdentifier() + " " + object.getIdentifier() + ".";
     }
 
 

@@ -1,10 +1,6 @@
 package cscie97.asn1.knowledge.engine;
 
-import java.util.List;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -79,7 +75,108 @@ public class KnowledgeGraph {
      *
      * @param tripleList
      */
-    public void importTriples(List<Triple> tripleList) { }
+    public void importTriples(List<Triple> tripleList) {
+        for (Triple triple : tripleList) {
+            // the triple is new and doesn't exist yet, so add all required references as necessary
+            if ( tripleMap.get(triple.getIdentifier().toLowerCase()) == null && triple.getIdentifier() != null) {
+
+                if (nodeMap.get(triple.getSubject().getIdentifier().toLowerCase()) == null) {
+                    nodeMap.put(triple.getSubject().getIdentifier().toLowerCase(), triple.getSubject());
+                }
+
+                if (nodeMap.get(triple.getObject().getIdentifier().toLowerCase()) == null) {
+                    nodeMap.put(triple.getObject().getIdentifier().toLowerCase(), triple.getObject());
+                }
+
+                if (predicateMap.get(triple.getPredicate().getIdentifier().toLowerCase()) == null) {
+                    predicateMap.put(triple.getPredicate().getIdentifier().toLowerCase(), triple.getPredicate());
+                }
+
+                tripleMap.put(triple.getIdentifier().toLowerCase(), triple);
+
+                /* update queryMapSet - this pre-computes the possible queries that this Triple should match;
+                there should in general be 8 permutations of queries that will match the given Triple.
+                For example, if the triple is:
+
+                "Joe has_friend Bill", then the various 8 permutations of query strings that should match this triple are:
+
+                1) Joe has_friend Bill
+                2) Joe has_friend ?
+                3) Joe ? Bill
+                4) Joe ? ?
+                5) ? has_friend Bill
+                6) ? has_friend ?
+                7) ? ? Bill
+                8) ? ? ?
+
+                */
+
+                HashSet<Triple> curTripleAsSet = new HashSet<Triple>(Arrays.asList(triple));
+
+                // save a list of all the query strings that should potentially match this triple,
+                // and update the queryMapSet with the current triple for each permutation so that subsequent
+                // queries will quickly match this triple
+                List<String> queryStringMatches = new ArrayList<String>(Arrays.asList(
+                        // query format: 1) Joe has_friend Bill
+                        triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
+                        // query format: 2) Joe has_friend ?
+                        triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
+                        // query format: 3) Joe ? Bill
+                        triple.getSubject().getIdentifier().toLowerCase() + " ? " + triple.getObject().getIdentifier().toLowerCase(),
+                        // query format: 4) Joe ? ?
+                        triple.getSubject().getIdentifier().toLowerCase() + " ? ?",
+                        // query format: 5) ? has_friend Bill
+                        "? " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
+                        // query format: 6) ? has_friend ?
+                        "? " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
+                        // query format: 7) ? ? Bill
+                        "? ? " + triple.getObject().getIdentifier().toLowerCase(),
+                        // query format: 8) ? ? ?
+                        "? ? ?"
+                ));
+
+                for (String queryString : queryStringMatches) {
+                    Set<Triple> queryStringSetMatchingTriples = queryMapSet.get(queryString);
+                    if (queryStringSetMatchingTriples == null) {
+                        queryMapSet.put(queryString, new HashSet<Triple>(Arrays.asList(triple)) );
+                    }
+                    else {
+                        queryStringSetMatchingTriples.add(triple);
+                    }
+                }
+
+
+                /*
+                String q1 = triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase();
+                if (queryMapSet.get(q1) == null) { queryMapSet.put(q1, curTripleAsSet); }
+
+                String q2 = triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " ?";
+                if (queryMapSet.get(q2) == null) { queryMapSet.put(q2, curTripleAsSet); }
+
+                String q3 = triple.getSubject().getIdentifier().toLowerCase() + " ? " + triple.getObject().getIdentifier().toLowerCase();
+                if (queryMapSet.get(q3) == null) { queryMapSet.put(q3, curTripleAsSet); }
+
+                String q4 = triple.getSubject().getIdentifier().toLowerCase() + " ? ?";
+                if (queryMapSet.get(q4) == null) { queryMapSet.put(q4, curTripleAsSet); }
+
+                String q5 = "? " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase();
+                if (queryMapSet.get(q5) == null) { queryMapSet.put(q5, curTripleAsSet); }
+
+                String q6 = "? " + triple.getPredicate().getIdentifier().toLowerCase() + " ?";
+                if (queryMapSet.get(q6) == null) { queryMapSet.put(q6, curTripleAsSet); }
+
+                String q7 = "? ? " + triple.getObject().getIdentifier().toLowerCase();
+                if (queryMapSet.get(q7) == null) { queryMapSet.put(q7, curTripleAsSet); }
+
+                String q8 = "? ? ?";
+
+                Set<Triple> q8Map = queryMapSet.get(q8);
+                if (q8Map == null) { queryMapSet.put(q8, new HashSet<Triple>(Arrays.asList(triple)) ); }
+                else { q8Map.add(triple); }
+                */
+            }
+        }
+    }
 
     /**
      * Use the queryMapSet to determine the Triples that match the given Query. If none are found return an empty Set.
@@ -157,6 +254,8 @@ public class KnowledgeGraph {
 
         Triple triple = new Triple(subject, predicate, object);
         tripleMap.put(tripleIdentifier, triple);
+
+        // TODO: also update queryMapSet
 
         return triple;
 
