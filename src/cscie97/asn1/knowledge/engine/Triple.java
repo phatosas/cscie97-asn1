@@ -84,9 +84,14 @@ public class Triple {
 
 
     public Triple(Node subject, Predicate predicate, Node object) {
-        this.subject = subject;
-        this.predicate = predicate;
-        this.object = object;
+        //this.subject = subject;
+        //this.predicate = predicate;
+        //this.object = object;
+
+        this.subject = (subject == null) ? new Node("?") : subject;
+        this.predicate = (predicate == null) ? new Predicate("?") : predicate;
+        this.object = (object == null) ? new Node("?") : object;
+
         //this.identifier = subject.getIdentifier().toLowerCase() + " " + predicate.getIdentifier().toLowerCase() + " " + object.getIdentifier().toLowerCase() + "";
         this.identifier = subject.getIdentifier() + " " + predicate.getIdentifier() + " " + object.getIdentifier() + ".";
     }

@@ -3,3 +3,11 @@
 
 /Users/dkilleffer/Documents/CLASSES/CSCI-E-97/homework/assignment1/inputTriples.nt /Users/dkilleffer/Documents/CLASSES/CSCI-E-97/homework/sampleQuery.nt
 
+
+
+/Users/dkilleffer/Documents/personal/CLASSES/CSCI-E-97/homework/assignment1/inputTriples.nt /Users/dkilleffer/Documents/personal/CLASSES/CSCI-E-97/homework/assignment1/sampleQuery.nt
+
+
+/Users/dkilleffer/Documents/CLASSES/CSCI-E-97/homework/assignment1/inputTriples.nt /Users/dkilleffer/Documents/CLASSES/CSCI-E-97/homework/sampleQuery.nt
+
+

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,6 +26,19 @@ public class QueryEngine {
         try {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
+            Triple queryTriple = kg.getQueryTripleFromStringIdentifier(query);
+
+            Set<Triple> queryResults = kg.executeQuery(queryTriple);
+
+            System.out.println("QUERY: " + queryTriple.getIdentifier() );
+
+            if (queryResults.size() > 0) {
+                for (Triple triple : queryResults) {
+                    System.out.println(triple.getIdentifier());
+                }
+                System.out.println();
+            }
+
             /*
             kg.executeQuery()
 
@@ -38,8 +52,6 @@ public class QueryEngine {
             if (parts.length < 3) {
                 throw new Exception("Query line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+query+"]");
             } else {
-
-
                     // the first part should contain the first "Node"
                     Node subject = kg.getNode(parts[0]);  // node/subjects: Joe, Sue, Mary, etc.
 
@@ -51,13 +63,10 @@ public class QueryEngine {
 
                     //Triple triple = kg.getTriple(subject, predicate, object);
                     kg.getTriple(subject, predicate, object);
-
-
-
                 }
             //}
-
             */
+
         }
         catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());

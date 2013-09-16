@@ -1,5 +1,9 @@
 package cscie97.asn1.knowledge.engine;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -144,38 +148,15 @@ public class KnowledgeGraph {
                         queryStringSetMatchingTriples.add(triple);
                     }
                 }
-
-
-                /*
-                String q1 = triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase();
-                if (queryMapSet.get(q1) == null) { queryMapSet.put(q1, curTripleAsSet); }
-
-                String q2 = triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " ?";
-                if (queryMapSet.get(q2) == null) { queryMapSet.put(q2, curTripleAsSet); }
-
-                String q3 = triple.getSubject().getIdentifier().toLowerCase() + " ? " + triple.getObject().getIdentifier().toLowerCase();
-                if (queryMapSet.get(q3) == null) { queryMapSet.put(q3, curTripleAsSet); }
-
-                String q4 = triple.getSubject().getIdentifier().toLowerCase() + " ? ?";
-                if (queryMapSet.get(q4) == null) { queryMapSet.put(q4, curTripleAsSet); }
-
-                String q5 = "? " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase();
-                if (queryMapSet.get(q5) == null) { queryMapSet.put(q5, curTripleAsSet); }
-
-                String q6 = "? " + triple.getPredicate().getIdentifier().toLowerCase() + " ?";
-                if (queryMapSet.get(q6) == null) { queryMapSet.put(q6, curTripleAsSet); }
-
-                String q7 = "? ? " + triple.getObject().getIdentifier().toLowerCase();
-                if (queryMapSet.get(q7) == null) { queryMapSet.put(q7, curTripleAsSet); }
-
-                String q8 = "? ? ?";
-
-                Set<Triple> q8Map = queryMapSet.get(q8);
-                if (q8Map == null) { queryMapSet.put(q8, new HashSet<Triple>(Arrays.asList(triple)) ); }
-                else { q8Map.add(triple); }
-                */
             }
         }
+    }
+
+    private String cleanQueryString(String stringToParse) {
+        stringToParse = stringToParse.toLowerCase();
+        stringToParse = stringToParse.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
+        stringToParse = stringToParse.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
+        return stringToParse;
     }
 
     /**
@@ -185,6 +166,23 @@ public class KnowledgeGraph {
      * @return
      */
     public Set<Triple> executeQuery(Triple query) {
+
+        if (query != null && query.getIdentifier() != null && query.getIdentifier().length() > 0) {
+            //Set<Triple> queryResults = this.queryMapSet.get(query.getIdentifier().toLowerCase());
+
+            String realQuery = cleanQueryString(query.getIdentifier());
+
+            //String realQuery = query.getIdentifier().toLowerCase();
+            //realQuery = realQuery.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
+            //realQuery = realQuery.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
+
+            Set<Triple> foundResults = this.queryMapSet.get( realQuery );
+
+            return foundResults;
+
+            //return this.queryMapSet.get(query.getIdentifier().toLowerCase());
+        }
+
         return null;
     }
 
@@ -261,4 +259,45 @@ public class KnowledgeGraph {
 
         //return null;
     }
+
+
+    public Triple getQueryTripleFromStringIdentifier(String identifier) throws Exception {
+
+        if (identifier != null && identifier.length() > 0) {
+
+            identifier = identifier.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
+
+            identifier = identifier.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
+
+            String[] parts = identifier.split("\\s");
+
+            if (parts.length < 3) {
+                throw new Exception("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]");
+            } else {
+
+                Node subject = null;
+                Node object = null;
+                Predicate predicate = null;
+
+                if (!parts[0].equalsIgnoreCase("?")) {
+                    // the first part should contain the first "Node"
+                    subject = getNode(parts[0]);  // node/subjects: Joe, Sue, Mary, etc.
+                }
+
+                if (!parts[1].equalsIgnoreCase("?")) {
+                    // the second part should be the Predicate
+                    predicate = getPredicate(parts[1]);  // predicate: has_friend, plays, etc.
+                }
+
+                if (!parts[2].equalsIgnoreCase("?")) {
+                    // last part should be the "object", also a Node
+                    object = getNode(parts[2]);  // object (also a node): Bill, Sue, Mary, Ultimate_Frisbee
+                }
+
+                return new Triple(subject, predicate, object);
+            }
+        }
+        return null;
+    }
+
 }
