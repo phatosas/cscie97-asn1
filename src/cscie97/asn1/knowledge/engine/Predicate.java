@@ -36,6 +36,4 @@ public class Predicate {
     public Predicate(String identifier) {
         this.identifier = identifier;
     }
-
-
 }

@@ -224,26 +224,21 @@ public class KnowledgeGraph {
     }
 
     /**
-     * Use the queryMapSet to determine the Triples that match the given Query. If none are found return an empty Set.
+     * Uses the queryMapSet to determine the Triples that match the given Query. Modifies the query by stripping off
+     * any trailing periods, and condenses multiple sequential occurrences of a space character into a single space.
+     * Queries are executed in a case-insensitive fashion.  If none are found return an empty Set.
      *
-     * @param query
-     * @return
+     * @param    query     the query string to search for matching Triples; question mark denotes a wildcard
+     * @return             the Set of all Triples matching the input query
      */
     public Set<Triple> executeQuery(Triple query) {
-
         if (query != null && query.getIdentifier() != null && query.getIdentifier().length() > 0) {
-            //Set<Triple> queryResults = this.queryMapSet.get(query.getIdentifier().toLowerCase());
-
             String realQuery = cleanQueryString(query.getIdentifier());
-
-            //String realQuery = query.getIdentifier().toLowerCase();
-            //realQuery = realQuery.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
-            //realQuery = realQuery.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
-
-            Set<Triple> foundResults = this.queryMapSet.get( realQuery );
-
-            return foundResults;
-            //return this.queryMapSet.get(query.getIdentifier().toLowerCase());
+            if (realQuery != null && realQuery.length() > 0) {
+                Set<Triple> foundResults = this.queryMapSet.get(realQuery);
+                return foundResults;
+            }
+            return null;
         }
         return null;
     }
@@ -252,20 +247,21 @@ public class KnowledgeGraph {
     /**
      * Return a Node Instance for the given node identifier. Use the nodeMap to look up the Node.
      * If the Node does not exist, create it and add it to the nodeMap. Node names are case insensitive.
+     * Nodes may be used both as the "Subject" (first part) of a Triple, as well as the "Object" (last part)
+     * of a Triple.
      *
-     * @param identifier
-     * @return
+     * @param identifier  the string identifier of the Node; will be stored in the map as lower-case
+     * @return            the newly created Node object based on the input identifier
      */
     public Node getNode(String identifier) {
-
-        // does this identifier already exist in the KnowledgeGraph?
+        // does this identifier already exist in the KnowledgeGraph for a pre-existing Node?
         if (nodeMap.keySet().contains(identifier.toLowerCase())) {
             return nodeMap.get(identifier.toLowerCase());
         }
 
+        // this is a new Node that the KnowledgeGraph has not encountered before; add it to the map
         Node node = new Node(identifier);
         nodeMap.put(identifier.toLowerCase(), node);
-
         return node;
     }
 
@@ -274,36 +270,32 @@ public class KnowledgeGraph {
      * If the Predicate does not exist, create it and add it to the predicateMap. Predicate names
      * are case insensitive.
      *
-     * @param identifier
-     * @return
+     * @param identifier  the string identifier of the Predicate; will be stored in the map as lower-case
+     * @return            the newly created Predicate object based on the input identifier
      */
     public Predicate getPredicate(String identifier) {
-
-        // does this identifier already exist in the KnowledgeGraph?
+        // does this identifier already exist in the KnowledgeGraph for a pre-existing Predicate?
         if (predicateMap.keySet().contains(identifier.toLowerCase())) {
             return predicateMap.get(identifier.toLowerCase());
         }
 
+        // this is a new Predicate that the KnowledgeGraph has not encountered before; add it to the map
         Predicate predicate = new Predicate(identifier);
         predicateMap.put(identifier.toLowerCase(), predicate);
-
         return predicate;
-
-        //return null;
     }
 
     /**
      * Return the Triple instance for the given Object, Predicate and Subject. Use the tripleMap to
-     * lookup the Triple. If the Triple does not exist, create it and add it to the tripleMap and
-     * update the queryMapSet.
+     * lookup the Triple. If the Triple is currently unknown to the KnowledgeGraph, creates it and
+     * adds it to the tripleMap and update the queryMapSet.
      *
-     * @param subject
-     * @param predicate
-     * @param object
-     * @return
+     * @param subject    the subject Node for the Triple
+     * @param predicate  the Predicate for the Triple
+     * @param object     the object Node for the Triple
+     * @return           the Triple that was either found pre-existing or newly created
      */
     public Triple getTriple(Node subject, Predicate predicate, Node object) {
-
         String tripleIdentifier = subject.getIdentifier().toLowerCase() + " " +
                                   predicate.getIdentifier().toLowerCase() + " " +
                                   object.getIdentifier().toLowerCase() + ".";
@@ -314,13 +306,20 @@ public class KnowledgeGraph {
 
         Triple triple = new Triple(subject, predicate, object);
         tripleMap.put(tripleIdentifier, triple);
-
         return triple;
-
-        //return null;
     }
 
 
+    /**
+     * For the given identifier, constructs a Triple object that can be used as the input parameter to the
+     * executeQuery() method.  This is useful for constructing Triple objects whose identifiers represent queries
+     * containing the "?" character (e.g., wildcard character).
+     *
+     * @param identifier    string used to construct a new Triple from; typically used to pass to the executeQuery()
+     *                      method and may contain "?" characters in the Triple identifier
+     * @return              a new Triple object corresponding to the String identifier
+     * @throws Exception
+     */
     public Triple getQueryTripleFromStringIdentifier(String identifier) throws Exception {
 
         if (identifier != null && identifier.length() > 0) {
@@ -333,6 +332,9 @@ public class KnowledgeGraph {
                 throw new Exception("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]");
             } else {
 
+                // for parts of the passed identifier that contain "?", leave those as null objects;
+                // when we construct the Triple, it will properly handle those nulls and equate them
+                // to the wildcard character
                 Node subject = null;
                 Node object = null;
                 Predicate predicate = null;
