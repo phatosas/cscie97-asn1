@@ -2,7 +2,7 @@ Joe plays_sport Hockey.
 Joe plays_sport Soccer.
 Joe plays_sport Cricket.
 Joe works_at Starbucks.
-Joe has_friend Lucy
+Joe has_friend Lucy.
 Lucy works_with Joe.
 Lucy works_at Starbucks.
 Lucy plays_instrument Guitar.
@@ -15,6 +15,8 @@ Starbucks has_store_location HarvardSquare.
 Starbucks sells Coffee.
 Starbucks sells Cake.
 Starbucks provides FreeWIFI.
+
+
 HarvardCoop sells Coffee.
 HarvardCoop sells Book.
 HarvardCoop sells Cake.

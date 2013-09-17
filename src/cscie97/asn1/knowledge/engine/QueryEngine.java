@@ -32,41 +32,12 @@ public class QueryEngine {
 
             System.out.println("QUERY: " + queryTriple.getIdentifier() );
 
-            if (queryResults.size() > 0) {
+            if (queryResults != null && queryResults.size() > 0) {
                 for (Triple triple : queryResults) {
                     System.out.println(triple.getIdentifier());
                 }
-                System.out.println();
             }
-
-            /*
-            kg.executeQuery()
-
-            //while ((line = reader.readLine()) != null) {
-
-            // trim off any trailing periods from the string
-            query = query.replaceAll("\\.+$", "");
-
-            String[] parts = query.split("\\s");
-
-            if (parts.length < 3) {
-                throw new Exception("Query line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+query+"]");
-            } else {
-                    // the first part should contain the first "Node"
-                    Node subject = kg.getNode(parts[0]);  // node/subjects: Joe, Sue, Mary, etc.
-
-                    // the second part should be the Predicate
-                    Predicate predicate = kg.getPredicate(parts[1]);  // predicate: has_friend, plays, etc.
-
-                    // last part should be the "object", also a Node
-                    Node object = kg.getNode(parts[2]);  // object (also a node): Bill, Sue, Mary, Ultimate_Frisbee
-
-                    //Triple triple = kg.getTriple(subject, predicate, object);
-                    kg.getTriple(subject, predicate, object);
-                }
-            //}
-            */
-
+            System.out.println();
         }
         catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());

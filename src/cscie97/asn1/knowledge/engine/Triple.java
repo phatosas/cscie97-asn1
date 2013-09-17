@@ -93,7 +93,7 @@ public class Triple {
         this.object = (object == null) ? new Node("?") : object;
 
         //this.identifier = subject.getIdentifier().toLowerCase() + " " + predicate.getIdentifier().toLowerCase() + " " + object.getIdentifier().toLowerCase() + "";
-        this.identifier = subject.getIdentifier() + " " + predicate.getIdentifier() + " " + object.getIdentifier() + ".";
+        this.identifier = this.subject.getIdentifier() + " " + this.predicate.getIdentifier() + " " + this.object.getIdentifier() + ".";
     }
 
 

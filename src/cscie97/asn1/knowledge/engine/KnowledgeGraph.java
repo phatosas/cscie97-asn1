@@ -69,8 +69,6 @@ public class KnowledgeGraph {
     private Map<String,Set<Triple>> queryMapSet;
 
 
-
-
     /**
      * Public method for adding a list of Triples to the KnowledgeGraph.
      * The following associations must be updated: nodeMap, tripleMap, queryMapSet, predicateMap to reflect the
@@ -96,9 +94,16 @@ public class KnowledgeGraph {
                     predicateMap.put(triple.getPredicate().getIdentifier().toLowerCase(), triple.getPredicate());
                 }
 
-                tripleMap.put(triple.getIdentifier().toLowerCase(), triple);
+                //tripleMap.put(triple.getIdentifier().toLowerCase(), triple);
 
-                /* update queryMapSet - this pre-computes the possible queries that this Triple should match;
+                addTripleToQueryMapSet(triple);
+
+                /*
+                String cleanedIdentifier = cleanQueryString(triple.getIdentifier());
+                tripleMap.put(cleanedIdentifier, triple);
+
+
+                // / * update queryMapSet - this pre-computes the possible queries that this Triple should match;
                 there should in general be 8 permutations of queries that will match the given Triple.
                 For example, if the triple is:
 
@@ -113,9 +118,9 @@ public class KnowledgeGraph {
                 7) ? ? Bill
                 8) ? ? ?
 
-                */
+                // * /
 
-                HashSet<Triple> curTripleAsSet = new HashSet<Triple>(Arrays.asList(triple));
+                //HashSet<Triple> curTripleAsSet = new HashSet<Triple>(Arrays.asList(triple));
 
                 // save a list of all the query strings that should potentially match this triple,
                 // and update the queryMapSet with the current triple for each permutation so that subsequent
@@ -148,6 +153,65 @@ public class KnowledgeGraph {
                         queryStringSetMatchingTriples.add(triple);
                     }
                 }
+                */
+            }
+        }
+    }
+
+    private void addTripleToQueryMapSet(Triple triple) {
+
+        // the triple is new and doesn't exist yet, so add all required references as necessary
+        if ( tripleMap.get(triple.getIdentifier().toLowerCase()) == null && triple.getIdentifier() != null) {
+
+            String cleanedIdentifier = cleanQueryString(triple.getIdentifier());
+            tripleMap.put(cleanedIdentifier, triple);
+
+            /*
+            update queryMapSet - this pre-computes the possible queries that this Triple should match; there should in
+            general be 8 permutations of queries that will match the given Triple.  For example, if the triple is:
+
+            "Joe has_friend Bill", then the various 8 permutations of query strings that should match this triple are:
+
+            1) Joe has_friend Bill
+            2) Joe has_friend ?
+            3) Joe ? Bill
+            4) Joe ? ?
+            5) ? has_friend Bill
+            6) ? has_friend ?
+            7) ? ? Bill
+            8) ? ? ?
+
+            */
+
+            // save a list of all the query strings that should potentially match this triple, and update the queryMapSet
+            // with the current triple for each permutation so that subsequent queries will quickly match this triple
+            List<String> queryStringMatches = new ArrayList<String>(Arrays.asList(
+                // query format: 1) Joe has_friend Bill
+                triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
+                // query format: 2) Joe has_friend ?
+                triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
+                // query format: 3) Joe ? Bill
+                triple.getSubject().getIdentifier().toLowerCase() + " ? " + triple.getObject().getIdentifier().toLowerCase(),
+                // query format: 4) Joe ? ?
+                triple.getSubject().getIdentifier().toLowerCase() + " ? ?",
+                // query format: 5) ? has_friend Bill
+                "? " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
+                // query format: 6) ? has_friend ?
+                "? " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
+                // query format: 7) ? ? Bill
+                "? ? " + triple.getObject().getIdentifier().toLowerCase(),
+                // query format: 8) ? ? ?
+                "? ? ?"
+            ));
+
+            for (String queryString : queryStringMatches) {
+                Set<Triple> queryStringSetMatchingTriples = queryMapSet.get(queryString);
+                if (queryStringSetMatchingTriples == null) {
+                    queryMapSet.put(queryString, new HashSet<Triple>(Arrays.asList(triple)) );
+                }
+                else {
+                    queryStringSetMatchingTriples.add(triple);
+                }
             }
         }
     }
@@ -179,10 +243,8 @@ public class KnowledgeGraph {
             Set<Triple> foundResults = this.queryMapSet.get( realQuery );
 
             return foundResults;
-
             //return this.queryMapSet.get(query.getIdentifier().toLowerCase());
         }
-
         return null;
     }
 
@@ -253,8 +315,6 @@ public class KnowledgeGraph {
         Triple triple = new Triple(subject, predicate, object);
         tripleMap.put(tripleIdentifier, triple);
 
-        // TODO: also update queryMapSet
-
         return triple;
 
         //return null;
@@ -265,9 +325,7 @@ public class KnowledgeGraph {
 
         if (identifier != null && identifier.length() > 0) {
 
-            identifier = identifier.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
-
-            identifier = identifier.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
+            identifier = cleanQueryString(identifier);
 
             String[] parts = identifier.split("\\s");
 

@@ -41,6 +41,11 @@ public class Importer {
                 // trim off any trailing periods from the string
                 line = line.replaceAll("\\.+$", "");
 
+                // check if we encountered an empty line, and just skip to the next one if so
+                if (line.length() == 0) {
+                    continue;
+                }
+
                 String[] parts = line.split("\\s");
 
                 if (parts.length < 3) {
