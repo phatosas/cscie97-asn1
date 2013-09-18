@@ -11,7 +11,7 @@ public class Predicate {
 
     /**
      *
-     * Because of the in­memory nature of this implementation, to optimize memory usage, there should only
+     * Because of the in-memory nature of this implementation, to optimize memory usage, there should only
      * be one instance for each unique Triple, Node and Predicate object. This follows the FlyWeight
      * design pattern (see http://en.wikipedia.org/wiki/Flyweight_pattern).
      *

@@ -12,7 +12,7 @@ public class Triple {
 
     /**
      *
-     * Because of the in­memory nature of this implementation, to optimize memory usage, there should only
+     * Because of the in-memory nature of this implementation, to optimize memory usage, there should only
      * be one instance for each unique Triple, Node and Predicate object. This follows the FlyWeight
      * design pattern (see http://en.wikipedia.org/wiki/Flyweight_pattern).
      *
@@ -68,13 +68,13 @@ public class Triple {
 
     /**
      * Private unique non mutable identifier for the Triple. Of the form:
-     * subject.identifier + “ “ + predicate.identifer + “ “ + object.identifier.
+     * subject.identifier + " " + predicate.identifer + " " + object.identifier.
      */
     private String identifier;
 
     /**
      * Returns the Triple identifier, which is of the form:
-     * subject.identifier + “ “ + predicate.identifer + “ “ + object.identifier.
+     * subject.identifier + " " + predicate.identifer + " " + object.identifier.
      *
      * @return the string identifier for the Triple
      */

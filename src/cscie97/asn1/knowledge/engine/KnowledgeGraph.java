@@ -47,7 +47,6 @@ public class KnowledgeGraph {
      * Map key is the node identifier and value is the associated Node. Node identifiers
      * are case insensitive.
      */
-    //private Map<String,Node> nodeMap;
     private Map<String,Node> nodeMap;
 
     /**
@@ -64,7 +63,7 @@ public class KnowledgeGraph {
 
     /**
      * Private association for maintaining a fast query lookup map. Map key is the query
-     * string (e.g. “Bill ? ?”), and value is a Set of matching Triples.
+     * string (e.g. "Bill ? ?"), and value is a Set of matching Triples.
      */
     private Map<String,Set<Triple>> queryMapSet;
 
@@ -216,7 +215,7 @@ public class KnowledgeGraph {
         }
     }
 
-    private String cleanQueryString(String stringToParse) {
+    public String cleanQueryString(String stringToParse) {
         stringToParse = stringToParse.toLowerCase();
         stringToParse = stringToParse.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
         stringToParse = stringToParse.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
