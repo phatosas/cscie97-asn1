@@ -2,7 +2,6 @@ package cscie97.asn1.knowledge.engine;
 
 import cscie97.asn1.knowledge.engine.exception.ImportException;
 import cscie97.asn1.knowledge.engine.exception.ParseException;
-import cscie97.asn1.knowledge.engine.exception.QueryEngineException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Loads new Triples from an input file into the KnowledgeGraph.  The input file should be a plain text file
  * consisting of lines in the following format:
- *  <code>[subject (Node)] [space] [Predicate] [space] [object (Node)].</code>
+ * <p><blockquote><code>[subject (Node)] [space] [Predicate] [space] [object (Node)][period]</code></blockquote></p>
  * Matching lines are imported into the KnowledgeGraph as Triples.
  *
  * @author David Killeffer <rayden7@gmail.com>
@@ -35,14 +34,9 @@ public class Importer {
      * @throws FileNotFoundException  thrown when the supplied filename argument could not be found on the system
      * @throws IOException            thrown when thrown a system-level issue arose reading the file (perhaps a permissions issue, etc.)
      */
-    //public static void importTripleFile(String filename) throws ParseException {
     public static void importTripleFile(String filename) throws ImportException, ParseException, FileNotFoundException, IOException {
         try {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
-
-            // http://stackoverflow.com/questions/2788080/reading-a-text-file-in-java
-
-            // http://www.javapractices.com/topic/TopicAction.do?Id=42
 
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = null;
@@ -50,7 +44,7 @@ public class Importer {
             // track the Triples we want to add to the KnowledgeEngine and load them all up once we're done reading the file
             List<Triple> triplesToAdd = new ArrayList<Triple>();
 
-            int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file
+            int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file for exception handling
 
             while ((line = reader.readLine()) != null) {
 
@@ -62,7 +56,7 @@ public class Importer {
 
                 // check if the line, once "cleaned", is a minimum of 5 characters in length
                 // (5 being the minimum number of characters allowed to be valid -
-                // Subject+space, Predicate+space, Object)
+                // Subject+space, Predicate+space, Object); if the line is less than that, continue onto the next line
                 String cleanedLine = kg.cleanTripleIdentifier(line);
                 if ( cleanedLine == null || cleanedLine.length() < 5) { continue; }
 
@@ -70,15 +64,13 @@ public class Importer {
 
                 if (parts.length < 3) {
                     //throw new Exception("Triple line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+line+"]");
-
                     throw new ParseException("Triple line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+line+"]",
                                                 line,
                                                 lineNumber,
                                                 filename,
                                                 null);
-
-
-                    } else {
+                }
+                else {
                     // the first part should contain the first "Node"
                     Node subject = kg.getNode(parts[0]);  // node/subjects: Joe, Sue, Mary, etc.
 
@@ -107,5 +99,4 @@ public class Importer {
             System.out.println("Exception: " + e.getMessage());
         }
     }
-
 }

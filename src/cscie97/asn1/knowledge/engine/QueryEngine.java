@@ -1,7 +1,5 @@
 package cscie97.asn1.knowledge.engine;
 
-import cscie97.asn1.knowledge.engine.exception.ImportException;
-import cscie97.asn1.knowledge.engine.exception.ParseException;
 import cscie97.asn1.knowledge.engine.exception.QueryEngineException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -18,6 +16,10 @@ import java.util.Set;
  * @see KnowledgeGraph
  */
 public class QueryEngine {
+
+
+    // TODO: fix exception handling on executeQuery and executeQueryFilename to use custom exception handling, cleanup, etc.
+
 
     /**
      * Public method for executing a single query on the knowledge graph.  Checks for non-null and well

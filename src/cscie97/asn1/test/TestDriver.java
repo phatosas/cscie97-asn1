@@ -1,25 +1,33 @@
 package cscie97.asn1.test;
 
-/**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 12:36 PM
- * To change this template use File | Settings | File Templates.
- */
-
-import cscie97.asn1.knowledge.engine.*;
+import cscie97.asn1.knowledge.engine.Importer;
+import cscie97.asn1.knowledge.engine.QueryEngine;
+import cscie97.asn1.knowledge.engine.Triple;
+import cscie97.asn1.knowledge.engine.KnowledgeGraph;
 import cscie97.asn1.knowledge.engine.exception.ParseException;
 
+/**
+ * Test harness for the CSCI-E 97 Assignment 1.  Reads in a supplied importFile to load new Triples into the
+ * KnowledgeGraph, and then executes a supplied query file to run queries against the KnowledgeGraph for those
+ * new Triples.
+ *
+ * @author David Killeffer <rayden7@gmail.com>
+ * @version 1.0
+ * @see Triple
+ * @see KnowledgeGraph
+ * @see Importer
+ * @see QueryEngine
+ */
 public class TestDriver {
 
     /**
-     * Implement a test driver class called TestDriver that implements a static main() method.
-     * The main() method should accept 2 parameters, an input Triple file, and an Input Query file.
-     * The main method will call the Importer.importFile() method, passing in the name of the provided triple file.
-     * After loading the input triples, the main() method will invoke the executeQuery() method passing in
-     * the provided query file name.
-     * The TestDriver class should be defined within the package "cscie97.asn1.test".
+     * Executes the primary test logic. Calls the {@link Importer#importTripleFile(String)} method, passing in
+     * the name of the provided triple file (first argument).
+     * After loading the input triples, invokes the {@link QueryEngine#executeQueryFilename(String)} method passing
+     * in provided query file name (second argument).  Outputs all results to standard out.
+     *
+     * @param args  first argument should be an input file containing one Triple per line, second argument should
+     *              be a query file containing one Triple query per line
      */
     public static void main(String[] args) {
         if (args.length == 2) {
