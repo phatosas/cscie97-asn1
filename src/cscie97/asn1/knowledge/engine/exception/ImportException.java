@@ -4,10 +4,11 @@ package cscie97.asn1.knowledge.engine.exception;
  * Created with IntelliJ IDEA.
  * User: dkilleffer
  * Date: 9/17/13
- * Time: 6:01 PM
+ * Time: 11:27 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ParseException extends Exception {
+public class ImportException extends Exception {
+
 
     // TODO: add Javadoc to all properties, methods, and constructors as well as class definition
 
@@ -18,9 +19,8 @@ public class ParseException extends Exception {
 
     private String filename;
 
-
-    public ParseException (String msg, String line, int lineNum, String filename, Throwable cause) {
-        super("ParseException occurred at line" + lineNum + " of file " + filename + " in line number [" + lineNum + "]", cause);
+    public ImportException (String msg, String line, int lineNum, String filename, Throwable cause) {
+        super("ImportException  occurred at line" + lineNum + " of file " + filename + " in line number [" + lineNum + "]", cause);
 
         this.lineWhereFailed = line;
         this.lineIndexWhereFailed = lineNum;

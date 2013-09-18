@@ -1,5 +1,8 @@
 package cscie97.asn1.knowledge.engine;
 
+import cscie97.asn1.knowledge.engine.exception.ImportException;
+import cscie97.asn1.knowledge.engine.exception.ParseException;
+import cscie97.asn1.knowledge.engine.exception.QueryEngineException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,22 +10,22 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 11:09 AM
- * To change this template use File | Settings | File Templates.
+ * Used to execute queries against the KnowledgeGraph for matching Triples.
+ *
+ * @author David Killeffer <rayden7@gmail.com>
+ * @version 1.0
+ * @see Triple
+ * @see KnowledgeGraph
  */
 public class QueryEngine {
 
     /**
-     * Public method for executing a single query on the knowledge graph.
-     * Checks for non null and well formed query string.
-     * Throws QueryEngineException on error.
+     * Public method for executing a single query on the knowledge graph.  Checks for non-null and well
+     * formed query string.  Throws QueryEngineException on error.
      *
      * @param query the query to run returning Triple(s)
      */
-    public static void executeQuery(String query) {
+    public static void executeQuery(String query) throws QueryEngineException {
         try {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
@@ -48,9 +51,10 @@ public class QueryEngine {
      * Public method for executing a set of queries read from a file. Checks for valid file name.
      * Delegates to executeQuery for processing individual queries. Throws QueryEngineException on error.
      *
-     * @param filename
+     * @param filename  the query file to read in and execute each line
+     * @throws QueryEngineException  thrown when a problem occurs during reading the query file for parsing
      */
-    public static void executeQueryFilename(String filename) {
+    public static void executeQueryFilename(String filename) throws QueryEngineException {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = null;

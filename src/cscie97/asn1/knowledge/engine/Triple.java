@@ -1,23 +1,17 @@
 package cscie97.asn1.knowledge.engine;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 11:09 AM
- * To change this template use File | Settings | File Templates.
+ * Represents a Triple, which is comprised of a "subject" (a Node), a Predicate, and an "object" (another Node).
+ * Triples are used to explain how "subjects" and "objects" relate to each other by way of a Predicate.
+ * Each Triple is stored in the KnowledgeGraph, and users may query the KnowledgeGraph for matching
+ * Triples based on subject, predicate, and object parameters.  There should only be 1 unique instance of each
+ * Triple, and this uniqueness is enforced by the KnowledgeGraph class.
+ *
+ * @author David Killeffer <rayden7@gmail.com>
+ * @version 1.0
+ * @see Triple
  */
 public class Triple {
-
-
-    /**
-     *
-     * Because of the in-memory nature of this implementation, to optimize memory usage, there should only
-     * be one instance for each unique Triple, Node and Predicate object. This follows the FlyWeight
-     * design pattern (see http://en.wikipedia.org/wiki/Flyweight_pattern).
-     *
-     */
-
 
     /**
      * Private non mutable association to the associated Subject instance.
@@ -34,13 +28,11 @@ public class Triple {
         return subject;
     }
 
-
     /**
      * Private non mutable association to the associated Predicate instance.
      * May be "?" in the case where the Triple is intended to be used for querying for other triples.
      */
     private Predicate predicate;
-
 
     /**
      * Retrieves the Predicate of the Triple, which is the 2nd and middle string portion of the identifier.

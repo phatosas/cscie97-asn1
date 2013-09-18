@@ -1,27 +1,35 @@
 package cscie97.asn1.knowledge.engine;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 11:09 AM
- * To change this template use File | Settings | File Templates.
+ * An in-memory database of Triples, which allows for the importation of new Triples into the database as well as
+ * queries on the database and returns matching Triples.  The KnowledgeGraph is a Singleton, so there is only ever
+ * one instance to use.  Additionally, the KnowledgeGraph uses the Flyweight pattern to ensure that there is only ever
+ * one unique instance of each Node, Predicate, or Triple so as to not needlessly duplicate things.
+ *
+ * @author David Killeffer <rayden7@gmail.com>
+ * @version 1.0
+ * @see Triple
+ * @see QueryEngine
+ * @see Importer
  */
 public class KnowledgeGraph {
-
 
     // borrowed Singleton implementation from Wikipedia: http://en.wikipedia.org/wiki/Singleton_pattern
 
     private static KnowledgeGraph instance = null;
 
+    /**
+     * Class constructor.  Initially sets nodeMap, predicateMap, tripleMap, and queryMapSet to all be empty HashMaps.
+     */
     private KnowledgeGraph() {
-
         nodeMap = new HashMap<String,Node>();
         predicateMap = new HashMap<String,Predicate>();
         tripleMap = new HashMap<String,Triple>();
@@ -69,12 +77,11 @@ public class KnowledgeGraph {
 
 
     /**
-     * Public method for adding a list of Triples to the KnowledgeGraph.
-     * The following associations must be updated: nodeMap, tripleMap, queryMapSet, predicateMap to reflect the
-     * added Triple. There should be one Triple instance per unique Subject, Predicate,
-     * Object combination, so that Triples are not duplicated.
+     * Public method for adding a list of Triples to the KnowledgeGraph.  Updates the associations for: nodeMap,
+     * tripleMap, queryMapSet, and predicateMap to reflect the added Triple. There should be one Triple instance
+     * per unique Subject, Predicate, Object combination, so that Triples are not duplicated (Flyweight pattern).
      *
-     * @param tripleList
+     * @param tripleList  the list of Triples to add to the KnowledgeGraph
      */
     public void importTriples(List<Triple> tripleList) {
         for (Triple triple : tripleList) {
@@ -93,76 +100,24 @@ public class KnowledgeGraph {
                     predicateMap.put(triple.getPredicate().getIdentifier().toLowerCase(), triple.getPredicate());
                 }
 
-                //tripleMap.put(triple.getIdentifier().toLowerCase(), triple);
-
                 addTripleToQueryMapSet(triple);
-
-                /*
-                String cleanedIdentifier = cleanQueryString(triple.getIdentifier());
-                tripleMap.put(cleanedIdentifier, triple);
-
-
-                // / * update queryMapSet - this pre-computes the possible queries that this Triple should match;
-                there should in general be 8 permutations of queries that will match the given Triple.
-                For example, if the triple is:
-
-                "Joe has_friend Bill", then the various 8 permutations of query strings that should match this triple are:
-
-                1) Joe has_friend Bill
-                2) Joe has_friend ?
-                3) Joe ? Bill
-                4) Joe ? ?
-                5) ? has_friend Bill
-                6) ? has_friend ?
-                7) ? ? Bill
-                8) ? ? ?
-
-                // * /
-
-                //HashSet<Triple> curTripleAsSet = new HashSet<Triple>(Arrays.asList(triple));
-
-                // save a list of all the query strings that should potentially match this triple,
-                // and update the queryMapSet with the current triple for each permutation so that subsequent
-                // queries will quickly match this triple
-                List<String> queryStringMatches = new ArrayList<String>(Arrays.asList(
-                        // query format: 1) Joe has_friend Bill
-                        triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
-                        // query format: 2) Joe has_friend ?
-                        triple.getSubject().getIdentifier().toLowerCase() + " " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
-                        // query format: 3) Joe ? Bill
-                        triple.getSubject().getIdentifier().toLowerCase() + " ? " + triple.getObject().getIdentifier().toLowerCase(),
-                        // query format: 4) Joe ? ?
-                        triple.getSubject().getIdentifier().toLowerCase() + " ? ?",
-                        // query format: 5) ? has_friend Bill
-                        "? " + triple.getPredicate().getIdentifier().toLowerCase() + " " + triple.getObject().getIdentifier().toLowerCase(),
-                        // query format: 6) ? has_friend ?
-                        "? " + triple.getPredicate().getIdentifier().toLowerCase() + " ?",
-                        // query format: 7) ? ? Bill
-                        "? ? " + triple.getObject().getIdentifier().toLowerCase(),
-                        // query format: 8) ? ? ?
-                        "? ? ?"
-                ));
-
-                for (String queryString : queryStringMatches) {
-                    Set<Triple> queryStringSetMatchingTriples = queryMapSet.get(queryString);
-                    if (queryStringSetMatchingTriples == null) {
-                        queryMapSet.put(queryString, new HashSet<Triple>(Arrays.asList(triple)) );
-                    }
-                    else {
-                        queryStringSetMatchingTriples.add(triple);
-                    }
-                }
-                */
             }
         }
     }
 
+    /**
+     * Adds the given Triple to the queryMapSet, calculating all the permutations of queries for which the passed
+     * Triple should be included in the result set.  For each Triple, there are a total of 8 unique queries that
+     * should return the Triple.
+     *
+     * @param triple  the Triple to add to the queryMapSet
+     */
     private void addTripleToQueryMapSet(Triple triple) {
 
         // the triple is new and doesn't exist yet, so add all required references as necessary
         if ( tripleMap.get(triple.getIdentifier().toLowerCase()) == null && triple.getIdentifier() != null) {
 
-            String cleanedIdentifier = cleanQueryString(triple.getIdentifier());
+            String cleanedIdentifier = cleanTripleIdentifier(triple.getIdentifier());
             tripleMap.put(cleanedIdentifier, triple);
 
             /*
@@ -215,7 +170,19 @@ public class KnowledgeGraph {
         }
     }
 
-    public String cleanQueryString(String stringToParse) {
+    /**
+     * Takes a given Triple identifier, or a Triple query, and does the following:
+     * <ul>
+     *     <li>converts the string to lower-case</li>
+     *     <li>removes any trailing period from the string</li>
+     *     <li>replaces any occurrences of 2 or more spaces with a single space</li>
+     * </ul>
+     *
+     * @param stringToParse  the Triple identifier string or Triple query string to clean
+     * @return   a string that has the correct formatting for either uniquely identifying it as an existing
+     *           Triple, or using as a Triple query
+     */
+    public String cleanTripleIdentifier(String stringToParse) {
         stringToParse = stringToParse.toLowerCase();
         stringToParse = stringToParse.replaceAll("\\.+$", "");  // trim off any trailing periods from the string
         stringToParse = stringToParse.replaceAll("\\s{2,}", " ");  // replace all occurrences of two or more consecutive spaces with a single space
@@ -232,7 +199,7 @@ public class KnowledgeGraph {
      */
     public Set<Triple> executeQuery(Triple query) {
         if (query != null && query.getIdentifier() != null && query.getIdentifier().length() > 0) {
-            String realQuery = cleanQueryString(query.getIdentifier());
+            String realQuery = cleanTripleIdentifier(query.getIdentifier());
             if (realQuery != null && realQuery.length() > 0) {
                 Set<Triple> foundResults = this.queryMapSet.get(realQuery);
                 return foundResults;
@@ -323,14 +290,13 @@ public class KnowledgeGraph {
 
         if (identifier != null && identifier.length() > 0) {
 
-            identifier = cleanQueryString(identifier);
-
+            identifier = cleanTripleIdentifier(identifier);
             String[] parts = identifier.split("\\s");
 
             if (parts.length < 3) {
                 throw new Exception("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]");
-            } else {
-
+            }
+            else {
                 // for parts of the passed identifier that contain "?", leave those as null objects;
                 // when we construct the Triple, it will properly handle those nulls and equate them
                 // to the wildcard character
@@ -358,5 +324,4 @@ public class KnowledgeGraph {
         }
         return null;
     }
-
 }

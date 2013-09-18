@@ -1,38 +1,19 @@
 package cscie97.asn1.knowledge.engine;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 11:09 AM
- * To change this template use File | Settings | File Templates.
- */
-
-/**
- * A class to represent a Node, which is part of a Triple.  A Node can represent the "subject" of a Triple,
- * or the "object".
+ * Represents a Node, which is part of a Triple.  A Node can represent the "subject" of a Triple,
+ * or the "object".  There should only be 1 unique instance of each Node, and this uniqueness is enforced
+ * by the KnowledgeGraph class.
  *
  * @author David Killeffer <rayden7@gmail.com>
  * @version 1.0
  * @see Triple
- *
  */
 public class Node {
 
     /**
-     *
-     * Because of the in-memory nature of this implementation, to optimize memory usage, there should only
-     * be one instance for each unique Triple, Node and Predicate object. This follows the FlyWeight
-     * design pattern (see http://en.wikipedia.org/wiki/Flyweight_pattern).
-     *
-     */
-
-    /**
      * Private unique (use Flyweight pattern) non mutable identifier for the Node.
      * Node identifiers are case insensitive.
-     *
-     * As Nodes are intended only to be a part of a Triple,
-     *
      */
     private String identifier;
 
@@ -46,9 +27,10 @@ public class Node {
     }
 
     /**
-     * Class constructor.  Sets the string identifier.
+     * Class constructor.  Sets the string identifier for the Node.
      *
-     * @param identifier  the string that should uniquely identify this Node from all others
+     * @param identifier  the string that should uniquely identify this Node from all others;
+     *                    uniqueness of Nodes is enforced by the KnowledgeGraph class
      */
     public Node(String identifier) {
         this.identifier = identifier;

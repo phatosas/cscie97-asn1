@@ -1,15 +1,8 @@
-/**
- * Created with IntelliJ IDEA.
- * User: dkilleffer
- * Date: 9/8/13
- * Time: 11:08 AM
- * To change this template use File | Settings | File Templates.
- */
-
 package cscie97.asn1.knowledge.engine;
 
+import cscie97.asn1.knowledge.engine.exception.ImportException;
 import cscie97.asn1.knowledge.engine.exception.ParseException;
-
+import cscie97.asn1.knowledge.engine.exception.QueryEngineException;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -17,10 +10,23 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Loads new Triples from an input file into the KnowledgeGraph.  The input file should be a plain text file
+ * consisting of lines in the following format:
+ *  <code>[subject (Node)] [space] [Predicate] [space] [object (Node)].</code>
+ * Matching lines are imported into the KnowledgeGraph as Triples.
+ *
+ * @author David Killeffer <rayden7@gmail.com>
+ * @version 1.0
+ * @see Triple
+ * @see KnowledgeGraph
+ */
 public class Importer {
 
+    // TODO: fix exception handling on importTripleFile to use custom exception handling, cleanup, etc.
+
     /**
-     * Public method for importing triples from N_Triple formatted file into the KnowledgeGraph.
+     * Public method for importing triples from the supplied filename into the KnowledgeGraph.
      * Checks for valid input file name.
      * Throws ImportException on error accessing or processing the input Triple File.
      *
@@ -30,7 +36,7 @@ public class Importer {
      * @throws IOException            thrown when thrown a system-level issue arose reading the file (perhaps a permissions issue, etc.)
      */
     //public static void importTripleFile(String filename) throws ParseException {
-    public static void importTripleFile(String filename) throws ParseException, FileNotFoundException, IOException {
+    public static void importTripleFile(String filename) throws ImportException, ParseException, FileNotFoundException, IOException {
         try {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
@@ -57,7 +63,7 @@ public class Importer {
                 // check if the line, once "cleaned", is a minimum of 5 characters in length
                 // (5 being the minimum number of characters allowed to be valid -
                 // Subject+space, Predicate+space, Object)
-                String cleanedLine = kg.cleanQueryString(line);
+                String cleanedLine = kg.cleanTripleIdentifier(line);
                 if ( cleanedLine == null || cleanedLine.length() < 5) { continue; }
 
                 String[] parts = line.split("\\s");
