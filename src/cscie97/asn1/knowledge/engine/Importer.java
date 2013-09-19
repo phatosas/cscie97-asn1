@@ -22,29 +22,30 @@ import java.util.List;
  */
 public class Importer {
 
-    // TODO: fix exception handling on importTripleFile to use custom exception handling, cleanup, etc.
-
     /**
      * Public method for importing triples from the supplied filename into the KnowledgeGraph.
      * Checks for valid input file name.
      * Throws ImportException on error accessing or processing the input Triple File.
      *
      * @param filename                file with triples to load into the KnowledgeGraph
+     * @throws ImportException        thrown when encountering non-parse related exceptions in the import process
      * @throws ParseException         thrown when encountering any issues parsing the input file related to the format of the file contents
-     * @throws FileNotFoundException  thrown when the supplied filename argument could not be found on the system
-     * @throws IOException            thrown when thrown a system-level issue arose reading the file (perhaps a permissions issue, etc.)
      */
-    public static void importTripleFile(String filename) throws ImportException, ParseException, FileNotFoundException, IOException {
+    public static void importTripleFile(String filename) throws ImportException, ParseException {
+
+        int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file for exception handling
+        String line = null;  // store the text on each line as it's processed
+
         try {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
             BufferedReader reader = new BufferedReader(new FileReader(filename));
-            String line = null;
+            //String line = null;
 
             // track the Triples we want to add to the KnowledgeEngine and load them all up once we're done reading the file
             List<Triple> triplesToAdd = new ArrayList<Triple>();
 
-            int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file for exception handling
+            //int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file for exception handling
 
             while ((line = reader.readLine()) != null) {
 
@@ -60,10 +61,18 @@ public class Importer {
                 String cleanedLine = kg.cleanTripleIdentifier(line);
                 if ( cleanedLine == null || cleanedLine.length() < 5) { continue; }
 
+                // ensure that the imported line does not contain any "?" characters
+                if (cleanedLine.matches("(.*)\\?(.*)")) {
+                    throw new ParseException("Import Triple line must not contain any queries, but actually contained a query character (?)",
+                                                line,
+                                                lineNumber,
+                                                filename,
+                                                null);
+                }
+
                 String[] parts = line.split("\\s");
 
                 if (parts.length < 3) {
-                    //throw new Exception("Triple line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+line+"]");
                     throw new ParseException("Triple line should have 3 parts, but only actually had ["+parts.length+"] parts: ["+line+"]",
                                                 line,
                                                 lineNumber,
@@ -90,13 +99,16 @@ public class Importer {
             }
         }
         catch (FileNotFoundException fnfe) {
-            System.out.println("FileNotFoundException: " + fnfe.getMessage());
+            //System.out.println("FileNotFoundException: " + fnfe.getMessage());
+            throw new ImportException("Could not find file ["+filename+"] to open for reading", lineNumber, filename, fnfe);
         }
         catch (IOException ioe) {
-            System.out.println("IOException: " + ioe.getMessage());
+            //System.out.println("IOException: " + ioe.getMessage());
+            throw new ImportException("Encountered an IOException when trying to open ["+filename+"] for reading", lineNumber, filename, ioe);
         }
         catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
+            //System.out.println("Exception: " + e.getMessage());
+            throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
         }
     }
 }

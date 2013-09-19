@@ -1,6 +1,8 @@
 package cscie97.asn1.knowledge.engine;
 
+import cscie97.asn1.knowledge.engine.exception.ImportException;
 import cscie97.asn1.knowledge.engine.exception.QueryEngineException;
+import cscie97.asn1.knowledge.engine.exception.ParseException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -17,46 +19,42 @@ import java.util.Set;
  */
 public class QueryEngine {
 
-
-    // TODO: fix exception handling on executeQuery and executeQueryFilename to use custom exception handling, cleanup, etc.
-
-
     /**
      * Public method for executing a single query on the knowledge graph.  Checks for non-null and well
      * formed query string.  Throws QueryEngineException on error.
      *
-     * @param query the query to run returning Triple(s)
+     * @param query            the query to run returning Triple(s)
+     * @throws ParseException  thrown if there is a problem with the supplied query (such as not having 3 parts,
+     *                         one each for subject, predicate, object)
      */
-    public static void executeQuery(String query) throws QueryEngineException {
-        try {
-            KnowledgeGraph kg = KnowledgeGraph.getInstance();
+    //public static void executeQuery(String query) throws QueryEngineException, ParseException {
+    public static void executeQuery(String query) throws ParseException {
+        KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
-            Triple queryTriple = kg.getQueryTripleFromStringIdentifier(query);
+        Triple queryTriple = kg.getQueryTripleFromStringIdentifier(query);
 
-            Set<Triple> queryResults = kg.executeQuery(queryTriple);
+        Set<Triple> queryResults = kg.executeQuery(queryTriple);
 
-            System.out.println("QUERY: " + queryTriple.getIdentifier() );
+        System.out.println("QUERY: " + queryTriple.getIdentifier() );
 
-            if (queryResults != null && queryResults.size() > 0) {
-                for (Triple triple : queryResults) {
-                    System.out.println(triple.getIdentifier());
-                }
+        if (queryResults != null && queryResults.size() > 0) {
+            for (Triple triple : queryResults) {
+                System.out.println(triple.getIdentifier());
             }
-            System.out.println();
         }
-        catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
-        }
+        System.out.println();
     }
 
     /**
      * Public method for executing a set of queries read from a file. Checks for valid file name.
      * Delegates to executeQuery for processing individual queries. Throws QueryEngineException on error.
      *
-     * @param filename  the query file to read in and execute each line
+     * @param filename               the query file to read in and execute each line
      * @throws QueryEngineException  thrown when a problem occurs during reading the query file for parsing
+     * @throws ParseException        thrown when there is a problem with a particular query line in the query file
+     * @throws ImportException       thrown if there is a lower-level problem opening up the query file for reading
      */
-    public static void executeQueryFilename(String filename) throws QueryEngineException {
+    public static void executeQueryFilename(String filename) throws QueryEngineException, ParseException, ImportException {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(filename));
             String line = null;
@@ -65,13 +63,13 @@ public class QueryEngine {
             }
         }
         catch (FileNotFoundException fnfe) {
-            System.out.println("FileNotFoundException: " + fnfe.getMessage());
+            throw new ImportException("Could not find query file ["+filename+"] to open for reading", 0, filename, fnfe);
         }
         catch (IOException ioe) {
-            System.out.println("IOException: " + ioe.getMessage());
+            throw new ImportException("Encountered an IOException when trying to open query file ["+filename+"] for reading", 0, filename, ioe);
         }
         catch (Exception e) {
-            System.out.println("Exception: " + e.getMessage());
+            throw new ImportException("Caught a generic Exception when attempting to read query file ["+filename+"]", 0, filename, e);
         }
     }
 

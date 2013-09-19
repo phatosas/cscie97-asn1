@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Arrays;
+import cscie97.asn1.knowledge.engine.exception.ParseException;
 
 /**
  * An in-memory database of Triples, which allows for the importation of new Triples into the database as well as
@@ -281,12 +282,13 @@ public class KnowledgeGraph {
      * executeQuery() method.  This is useful for constructing Triple objects whose identifiers represent queries
      * containing the "?" character (e.g., wildcard character).
      *
-     * @param identifier    string used to construct a new Triple from; typically used to pass to the executeQuery()
-     *                      method and may contain "?" characters in the Triple identifier
-     * @return              a new Triple object corresponding to the String identifier
-     * @throws Exception
+     * @param identifier       string used to construct a new Triple from; typically used to pass to the executeQuery()
+     *                         method and may contain "?" characters in the Triple identifier
+     * @return                 a new Triple object corresponding to the String identifier
+     * @throws ParseException  thrown if passed identifier does not have the required three parts
+     *                         (subject, predicate, and object)
      */
-    public Triple getQueryTripleFromStringIdentifier(String identifier) throws Exception {
+    public Triple getQueryTripleFromStringIdentifier(String identifier) throws ParseException {
 
         if (identifier != null && identifier.length() > 0) {
 
@@ -294,7 +296,8 @@ public class KnowledgeGraph {
             String[] parts = identifier.split("\\s");
 
             if (parts.length < 3) {
-                throw new Exception("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]");
+                //throw new ParseException("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]", null, 0, null, null);
+                throw new ParseException("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]", identifier, null);
             }
             else {
                 // for parts of the passed identifier that contain "?", leave those as null objects;
@@ -304,19 +307,14 @@ public class KnowledgeGraph {
                 Node object = null;
                 Predicate predicate = null;
 
-                if (!parts[0].equalsIgnoreCase("?")) {
-                    // the first part should contain the first "Node"
-                    subject = getNode(parts[0]);  // node/subjects: Joe, Sue, Mary, etc.
+                if (!parts[0].equalsIgnoreCase("?")) { // the first part should contain the first "Node"
+                    subject = getNode(parts[0]);       // node/subjects: Joe, Sue, Mary, etc.
                 }
-
-                if (!parts[1].equalsIgnoreCase("?")) {
-                    // the second part should be the Predicate
-                    predicate = getPredicate(parts[1]);  // predicate: has_friend, plays, etc.
+                if (!parts[1].equalsIgnoreCase("?")) {  // the second part should be the Predicate
+                    predicate = getPredicate(parts[1]); // predicate: has_friend, plays, etc.
                 }
-
-                if (!parts[2].equalsIgnoreCase("?")) {
-                    // last part should be the "object", also a Node
-                    object = getNode(parts[2]);  // object (also a node): Bill, Sue, Mary, Ultimate_Frisbee
+                if (!parts[2].equalsIgnoreCase("?")) { // last part should be the "object", also a Node
+                    object = getNode(parts[2]);        // object (also a node): Bill, Sue, Mary, Ultimate_Frisbee
                 }
 
                 return new Triple(subject, predicate, object);
