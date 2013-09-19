@@ -42,7 +42,6 @@ public class ImportException extends Exception {
      * @param cause     the wrapped lower-level exception that triggered this exception's creation
      */
     public ImportException (String line, int lineNum, String filename, Throwable cause) {
-
         super("ImportException occurred at line #" + lineNum + " of file " + filename + " in line number [" + lineNum + "]", cause);
 
         this.lineWhereFailed = line;

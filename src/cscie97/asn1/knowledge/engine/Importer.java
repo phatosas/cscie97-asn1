@@ -40,12 +40,9 @@ public class Importer {
             KnowledgeGraph kg = KnowledgeGraph.getInstance();
 
             BufferedReader reader = new BufferedReader(new FileReader(filename));
-            //String line = null;
 
             // track the Triples we want to add to the KnowledgeEngine and load them all up once we're done reading the file
             List<Triple> triplesToAdd = new ArrayList<Triple>();
-
-            //int lineNumber = 1;  // keep track of what lineNumber we're reading in from the input file for exception handling
 
             while ((line = reader.readLine()) != null) {
 
@@ -99,15 +96,12 @@ public class Importer {
             }
         }
         catch (FileNotFoundException fnfe) {
-            //System.out.println("FileNotFoundException: " + fnfe.getMessage());
             throw new ImportException("Could not find file ["+filename+"] to open for reading", lineNumber, filename, fnfe);
         }
         catch (IOException ioe) {
-            //System.out.println("IOException: " + ioe.getMessage());
             throw new ImportException("Encountered an IOException when trying to open ["+filename+"] for reading", lineNumber, filename, ioe);
         }
         catch (Exception e) {
-            //System.out.println("Exception: " + e.getMessage());
             throw new ImportException("Caught a generic Exception when attempting to read file ["+filename+"]", lineNumber, filename, e);
         }
     }

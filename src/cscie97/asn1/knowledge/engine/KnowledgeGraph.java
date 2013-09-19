@@ -50,7 +50,6 @@ public class KnowledgeGraph {
         return instance;
     }
 
-
     /**
      * Private association for maintaining the active set of Nodes (i.e. Subjects and/or Objects).
      * Map key is the node identifier and value is the associated Node. Node identifiers
@@ -296,7 +295,6 @@ public class KnowledgeGraph {
             String[] parts = identifier.split("\\s");
 
             if (parts.length < 3) {
-                //throw new ParseException("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]", null, 0, null, null);
                 throw new ParseException("Triple identifier should have 3 parts, but only actually had ["+parts.length+"] parts: ["+identifier+"]", identifier, null);
             }
             else {
